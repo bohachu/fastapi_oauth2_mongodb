@@ -1,3 +1,7 @@
+# 已經可以複製模板檔案，以後製作 package 很簡單了
+current_folder=$(basename "$PWD")
+curl -sS https://raw.githubusercontent.com/bohachu/template/master/py_package/py_package6.py | python - --package_name $current_folder
+
 # 2023-02-22
 go.py
 setup.py
