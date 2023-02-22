@@ -1,2 +1,8 @@
+# 2023-02-22
+go.py
+setup.py
+upload_pip.py
+三個都可重用
+
 # 2023-02-22 08:44 bowen
 # package to pip, and upload ok
