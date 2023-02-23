@@ -1,5 +1,6 @@
 # 2023-02-23 13:41 caro bowen
 . mongodb docker 已經有安裝進度條了
+. Register 完成
 
 
 
