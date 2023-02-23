@@ -1,6 +1,6 @@
 # setup.py
-from setuptools import setup, find_packages
 import yaml
+from setuptools import setup, find_packages
 
 yml = yaml.safe_load(open("package.yml"))
 
@@ -14,7 +14,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            f"mycommand={yml["package_name"]}.__main__:main"
+            f"mycommand={yml['package_name']}.__main__:main"
         ]
     }
 )
