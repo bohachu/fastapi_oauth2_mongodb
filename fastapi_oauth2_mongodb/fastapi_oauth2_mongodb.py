@@ -4,6 +4,7 @@ import subprocess
 from datetime import datetime, timedelta
 from typing import Union
 
+from tqdm import tqdm
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -156,12 +157,38 @@ def start_mongodb():
     command = ["docker", "run", "-d", "-p", "27017:27017", "--name", "mongodb", "-v", f"{mongodb_dir}:/data/db",
                "mongo"]
     try:
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout = result.stdout.decode('utf-8')
-        stderr = result.stderr.decode('utf-8')
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        with tqdm(total=100, desc="Installing Docker...") as progress:
+            for line in p.stdout:
+                if "Downloading" in line:
+                    progress.update(10)
+                elif "Extracting" in line:
+                    progress.update(20)
+                elif "Complete!" in line:
+                    progress.update(70)
+                print(line, end="")
+        stdout, stderr = p.communicate()
         print(f"MongoDB container started:\n{stdout}\n{stderr}")
     except subprocess.CalledProcessError as e:
-        print(f"start_mongodb(), CalledProcessError starting MongoDB container: {e.stderr.decode('utf-8')}")
+        print(f"start_mongodb(), CalledProcessError starting MongoDB container: {e.stderr}")
+
+
+# 在此版本中，我們使用tqdm來顯示安裝進度條，將docker命令的stdout和stderr捕獲到p.stdout和p.stderr中，然後將其遍歷並在屏幕上顯示。您可以根據需要調整進度條的更新方式。
+# def start_mongodb():
+#     # create the mongodb directory in the user's home folder
+#     mongodb_dir = os.path.expanduser("~/mongodb")
+#     os.makedirs(mongodb_dir, exist_ok=True)
+#
+#     # start the mongodb container with the specified options
+#     command = ["docker", "run", "-d", "-p", "27017:27017", "--name", "mongodb", "-v", f"{mongodb_dir}:/data/db",
+#                "mongo"]
+#     try:
+#         result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#         stdout = result.stdout.decode('utf-8')
+#         stderr = result.stderr.decode('utf-8')
+#         print(f"MongoDB container started:\n{stdout}\n{stderr}")
+#     except subprocess.CalledProcessError as e:
+#         print(f"start_mongodb(), CalledProcessError starting MongoDB container: {e.stderr.decode('utf-8')}")
 
 
 def start_fastapi_monogodb():
