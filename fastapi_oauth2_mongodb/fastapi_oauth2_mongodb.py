@@ -7,9 +7,10 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
 from starlette.responses import RedirectResponse
-from pymongo import MongoClient
+
+from models import User, Token
+from routers import router
 
 SECRET_KEY = secrets.token_urlsafe(32)
 ALGORITHM = "HS256"
@@ -26,32 +27,12 @@ fake_users_db = {
     }
 }
 
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: Union[str, None] = None
-
-
-class User(BaseModel):
-    username: str
-    email: Union[str, None] = None
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
-
-
-class UserInDB(User):
-    hashed_password: str
-
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
+app.include_router(router)
 
 
 def verify_password(plain_password, hashed_password):
@@ -144,41 +125,6 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
 @app.get("/")
 async def root():
     return RedirectResponse(url="/docs")
-
-
-# 定義輸入數據模型
-class RegisterData(BaseModel):
-    username: str
-    password: str
-    email: str
-
-# 定義輸出數據模型
-class RegisterResult(BaseModel):
-    action: str = "register"
-    username: str
-    time: str
-    success: bool
-    message: str
-
-# 設置 MongoDB 連接
-client = MongoClient("mongodb://localhost:27017/")
-db = client["mydatabase"]
-collection = db["users"]
-
-# 定義 API 端點
-@app.post("/api/register", response_model=RegisterResult)
-async def register(data: RegisterData):
-    # 在 MongoDB 中插入用戶數據
-    result = collection.insert_one(data.dict())
-    # 構建輸出數據
-    result_data = RegisterResult(
-        username=data.username,
-        time=datetime.utcnow().isoformat(),
-        success=True,
-        message="Registration success."
-    )
-    return result_data
-
 
 
 import os
