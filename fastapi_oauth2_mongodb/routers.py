@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 
 from database import collection
 from models import RegisterData, RegisterResult
+from hash import pwd_context
 
 router = APIRouter()
 
@@ -13,7 +14,8 @@ async def register(data: RegisterData):
     existing_user = collection.find_one({"username": data.username})
     if existing_user:
         raise HTTPException(status_code=409, detail="Username already exists")
-    result = collection.insert_one(data.dict())
+    dic = {"username": data.username, "hashed_password": pwd_context.hash(data.password), "email": data.email}
+    result = collection.insert_one(dic)
     result_data = RegisterResult(
         username=data.username,
         time=datetime.utcnow().isoformat(),

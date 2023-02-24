@@ -1,4 +1,5 @@
 import secrets
+from models import UserInDB
 from datetime import datetime, timedelta
 from typing import Union
 
@@ -11,6 +12,8 @@ from starlette.responses import RedirectResponse
 
 from models import User, Token
 from routers import router
+
+from database import collection
 
 SECRET_KEY = secrets.token_urlsafe(32)
 ALGORITHM = "HS256"
@@ -39,9 +42,9 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-@app.get("/get_password_hash")
-def get_password_hash(password):
-    return pwd_context.hash(password)
+# @app.get("/get_password_hash")
+# def get_password_hash(password):
+#     return pwd_context.hash(password)
 
 
 def get_user(db, username: str):
@@ -98,8 +101,8 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 @app.post("/login_for_access_token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if not user:
+    existing_user = collection.find_one({"username": form_data.username})
+    if not pwd_context.verify(form_data.password, existing_user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -107,7 +110,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": existing_user["username"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
