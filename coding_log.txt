@@ -1,18 +1,15 @@
+todo 尚未修改 login input output 為我們規劃的格式
+
+# 2023-02-26 14:54 bowen
+
+
+
 # 2023-02-23 13:41 caro bowen
 . mongodb docker 已經有安裝進度條了
 . Register 完成，加入判斷存在用戶無法重複註冊
 
 # 2023-02-24 15:04 caro bowen
 . login 串接 mongoDB
-todo 尚未修改 login input output 為我們規劃的格式
-
-
-
-
-
-
-
-
 
 # must consider following parameters in framework:
 # "max_concurrent_tasks": 10,
