@@ -1,15 +1,11 @@
-from models import UserInDB
-from datetime import datetime, timedelta
-from typing import Union
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from starlette.responses import RedirectResponse
-from models import User, Token
-from routers_users import router
-from database import collection
+from fastapi_oauth2_mongodb.models import User
+from fastapi_oauth2_mongodb.routers_users import router
 import os
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

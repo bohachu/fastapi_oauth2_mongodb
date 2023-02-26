@@ -9,3 +9,4 @@ bcrypt
 pyyaml
 setuptools
 starlette
+httpx

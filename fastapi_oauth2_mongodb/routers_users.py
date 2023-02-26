@@ -1,8 +1,9 @@
 import pymongo
+import pytest
 from fastapi import Depends, APIRouter, status
-from database import collection
-from models import RegisterData, RegisterResult
-from hash import pwd_context
+from fastapi_oauth2_mongodb.database import collection
+from fastapi_oauth2_mongodb.models import RegisterData, RegisterResult
+from fastapi_oauth2_mongodb.hash import pwd_context
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from typing import Union
@@ -61,3 +62,52 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         return {"action": "login", "username": form_data.username,
                 "time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"), "success": False,
                 "message": f"Login failed, exception: {e}"}
+
+@pytest.fixture(scope="module")
+def register_data():
+    return {
+        "username": "testuser",
+        "password": "testpassword",
+        "email": "testuser@example.com",
+    }
+
+
+@pytest.fixture(scope="module")
+def login_data():
+    return {
+        "username": "testuser",
+        "password": "testpassword",
+        "grant_type": "password",
+    }
+
+
+def test_login_success(client, register_data, login_data):
+    # register user
+    client.post("/api/users/v1/register", json=register_data)
+    # login
+    response = client.post("/api/users/v1/login", data=login_data)
+    assert response.status_code == 200
+    assert response.json()["success"] is True
+    assert "token" in response.json()
+
+
+def test_login_invalid_username(client, register_data, login_data):
+    # register user
+    client.post("/api/users/v1/register", json=register_data)
+    # try to login with invalid username
+    login_data["username"] = "invalid_username"
+    response = client.post("/api/users/v1/login", data=login_data)
+    assert response.status_code == 200
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "Login failed."
+
+
+def test_login_invalid_password(client, register_data, login_data):
+    # register user
+    client.post("/api/users/v1/register", json=register_data)
+    # try to login with invalid password
+    login_data["password"] = "invalid_password"
+    response = client.post("/api/users/v1/login", data=login_data)
+    assert response.status_code == 200
+    assert response.json()["success"] is False
+    assert response.json()["message"] == "Login failed."
