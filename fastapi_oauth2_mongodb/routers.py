@@ -1,14 +1,13 @@
 from datetime import datetime
-
-from fastapi import APIRouter, HTTPException
-
+from fastapi import Depends, APIRouter, HTTPException, status
 from database import collection
-from fastapi_oauth2_mongodb import create_access_token
-from fastapi_oauth2_mongodb.database import collection
-from fastapi_oauth2_mongodb.fastapi_oauth2_mongodb import app, pwd_context, ACCESS_TOKEN_EXPIRE_MINUTES
-from fastapi_oauth2_mongodb.models import Token
-from models import RegisterData, RegisterResult
+from models import RegisterData, RegisterResult, Token
 from hash import pwd_context
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from datetime import datetime, timedelta
+from typing import Union
+from jose import JWTError, jwt
+import secrets
 
 router = APIRouter()
 
@@ -29,7 +28,23 @@ async def register(data: RegisterData):
     return result_data
 
 
-@app.post("/api/account/v1/login", response_model=Token)
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+SECRET_KEY = secrets.token_urlsafe(32)
+ALGORITHM = "HS256"
+
+
+def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+@router.post("/api/account/v1/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     existing_user = collection.find_one({"username": form_data.username})
     if not pwd_context.verify(form_data.password, existing_user["hashed_password"]):
