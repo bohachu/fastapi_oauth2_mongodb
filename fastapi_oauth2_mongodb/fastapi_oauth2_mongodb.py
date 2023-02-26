@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from starlette.responses import RedirectResponse
 from models import User, Token
-from routers_account import router
+from routers_users import router
 from database import collection
 import os
 
