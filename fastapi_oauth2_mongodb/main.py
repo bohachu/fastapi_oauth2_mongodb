@@ -21,10 +21,7 @@ middleware = [
 ]
 app = FastAPI(middleware=middleware)
 
-# app.router.route_class = LogStuff
 app.middleware("http")(logs_middleware)
-# app.middleware("http")(LogsMiddleware)
-# app.include_router(APIRouter(route_class=LogStuff))
 
 app.include_router(router_users)
 
