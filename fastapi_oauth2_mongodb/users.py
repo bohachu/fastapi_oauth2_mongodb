@@ -24,7 +24,6 @@ async def current_user(token: str) -> CurrentUserResult:
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
     user = await users_collection.find_one({"username": username})

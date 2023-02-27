@@ -2,11 +2,22 @@ import os
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
 from fastapi_oauth2_mongodb.router_users import router
 
-app = FastAPI()
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+        allow_credentials=True,
+    ),
+]
+app = FastAPI(middleware=middleware)
 app.include_router(router)
 
 
