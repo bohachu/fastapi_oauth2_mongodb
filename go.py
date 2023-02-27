@@ -6,4 +6,4 @@ import yaml
 
 s(f'''python3 -m pip install -r requirements.txt''')
 yml = yaml.safe_load(open("package.yml"))
-s(f'''python3 {yml['package_name']}/{yml['package_name']}.py''')
+s(f'''python3 {yml['package_name']}/main.py''')

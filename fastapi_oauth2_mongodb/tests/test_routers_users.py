@@ -1,12 +1,12 @@
 import pymongo
 import pytest
 from fastapi.testclient import TestClient
-from fastapi_oauth2_mongodb import fastapi_oauth2_mongodb
+from fastapi_oauth2_mongodb import main
 
 
 @pytest.fixture(scope="module")
 def client():
-    with TestClient(fastapi_oauth2_mongodb.app) as client:
+    with TestClient(main.app) as client:
         yield client
 
 

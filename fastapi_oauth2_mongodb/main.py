@@ -1,21 +1,13 @@
-import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from starlette.responses import RedirectResponse
-from fastapi_oauth2_mongodb.models import User, TokenData
-from fastapi_oauth2_mongodb.routers_users import router
 import os
+
+import uvicorn
+from fastapi import FastAPI
+from starlette.responses import RedirectResponse
+
+from fastapi_oauth2_mongodb.router_users import router
 
 app = FastAPI()
 app.include_router(router)
-
-
-
-
-
-
 
 
 @app.get("/")

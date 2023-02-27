@@ -10,3 +10,5 @@ pyyaml
 setuptools
 starlette
 httpx
+pytest
+motor

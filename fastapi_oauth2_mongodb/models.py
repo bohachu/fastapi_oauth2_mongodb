@@ -2,6 +2,8 @@ from typing import Union
 
 from pydantic import BaseModel
 
+from fastapi_oauth2_mongodb.time import now
+
 
 class User(BaseModel):
     username: str
@@ -29,9 +31,22 @@ class RegisterData(BaseModel):
     email: str
 
 
-class RegisterResult(BaseModel):
-    action: str = "register"
+class ActionResult(BaseModel):
+    action: str
     username: str
     time: str
     success: bool
-    message: str
+    message: str = ""
+
+
+class RegisterResult(ActionResult):
+    action: str = "RegisterResult"
+
+
+class LoginResult(ActionResult):
+    action: str = "LoginResult"
+    token: str = None
+
+
+class CurrentUserResult(ActionResult):
+    action: str = "CurrentUserResult"

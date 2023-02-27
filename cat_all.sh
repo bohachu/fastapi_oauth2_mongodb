@@ -1,0 +1,1 @@
+for file in $(find . -name '*.py'); do echo "\n\n == filename: $file ==\n"; cat $file; done
