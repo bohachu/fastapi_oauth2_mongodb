@@ -1,26 +1,26 @@
 import os
 
 import uvicorn
-from fastapi import FastAPI, APIRouter
-from starlette.middleware import Middleware
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
-from fastapi_oauth2_mongodb.logs_middleware import logs_middleware
 from fastapi_oauth2_mongodb.router_users import router_users
 
-middleware = [
-    Middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
-        allow_credentials=True,
-    ),
+app = FastAPI()
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "*"
 ]
-app = FastAPI(middleware=middleware)
-
-app.middleware("http")(logs_middleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(router_users)
 
