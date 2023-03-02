@@ -7,7 +7,6 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
 from fastapi_oauth2_mongodb.logs_middleware import logs_middleware
-from fastapi_oauth2_mongodb.logstuff import LogStuff
 from fastapi_oauth2_mongodb.router_users import router_users
 
 middleware = [
