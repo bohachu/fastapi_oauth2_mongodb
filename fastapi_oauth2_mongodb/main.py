@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
-from fastapi_oauth2_mongodb import router_trial
+from fastapi_oauth2_mongodb import router_trial, router_openai
 from fastapi_oauth2_mongodb import router_users
 
 app = FastAPI()
@@ -25,6 +25,7 @@ app.add_middleware(
 
 app.include_router(router_users.router)
 app.include_router(router_trial.router)
+app.include_router(router_openai.router)
 
 
 @app.get("/")

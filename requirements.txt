@@ -13,3 +13,5 @@ httpx
 pytest
 motor
 python-dotenv
+openai
+argparse
