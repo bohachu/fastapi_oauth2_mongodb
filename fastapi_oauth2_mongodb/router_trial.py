@@ -4,12 +4,15 @@ import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
 
 from fastapi import FastAPI, APIRouter, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
 router = APIRouter()
+
+load_dotenv()  # 載入 .env 檔案的環境變數
 
 # read SMTP server and port from environment variables
 SMTP_SERVER = os.environ.get('SMTP_SERVER')  # replace with your SMTP server
@@ -68,10 +71,10 @@ def main():
 
     if SMTP_SERVER is None or SMTP_PORT == 0 or EMAIL_ADDRESS is None or EMAIL_PASSWORD is None:
         print("Please set the following environment variables:")
-        print("export SMTP_SERVER='your_smtp_server'")
-        print("export SMTP_PORT='587'")
-        print("export EMAIL_ADDRESS='your_email_address'")
-        print("export EMAIL_PASSWORD='your_email_password'")
+        print("SMTP_SERVER='your_smtp_server'")
+        print("SMTP_PORT='587'")
+        print("EMAIL_ADDRESS='your_email_address'")
+        print("EMAIL_PASSWORD='your_email_password'")
         return
 
     asyncio.run(send_email(args.email_address))

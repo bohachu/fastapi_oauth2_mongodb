@@ -12,4 +12,4 @@ starlette
 httpx
 pytest
 motor
-typer
+python-dotenv
