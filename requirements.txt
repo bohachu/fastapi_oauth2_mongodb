@@ -12,3 +12,4 @@ starlette
 httpx
 pytest
 motor
+typer

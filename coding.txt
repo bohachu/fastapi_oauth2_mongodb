@@ -1,3 +1,7 @@
+# 2023-03-10 18:04 bowen caro 已經完成 router_trial.py
+  支援 smtp 發信功能
+
+=|?+,-m0n8j79hbgv5fc4dxs3
 # 2023-03-02 10:36 bowen caro 前端設計 4 APIs
 
 # 2023-02-27 15:04 bowen

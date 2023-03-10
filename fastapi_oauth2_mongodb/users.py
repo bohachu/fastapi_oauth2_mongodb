@@ -9,7 +9,7 @@ from fastapi_oauth2_mongodb.auth_token import ACCESS_TOKEN_EXPIRE_MINUTES, \
     create_access_token, SECRET_KEY, ALGORITHM
 from fastapi_oauth2_mongodb.database import users_collection
 from fastapi_oauth2_mongodb.hash import pwd_context
-from fastapi_oauth2_mongodb.models import RegisterData, RegisterResult, LoginResult, TokenData, CurrentUserResult
+from fastapi_oauth2_mongodb.models import RegisterData, RegisterResult, LoginResult, CurrentUserResult
 from fastapi_oauth2_mongodb.time import now
 
 
