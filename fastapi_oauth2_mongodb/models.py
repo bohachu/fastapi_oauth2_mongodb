@@ -20,6 +20,10 @@ class Token(BaseModel):
     email: Union[str, None] = None
 
 
+class Trial(BaseModel):
+    email: str
+
+
 class ActionResult(BaseModel):
     action: str
     email: str

@@ -7,10 +7,9 @@ from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, APIRouter, HTTPException
-from pydantic import BaseModel
 
 from fastapi_oauth2_mongodb.api_keys import create_api_key
-from fastapi_oauth2_mongodb.models import User
+from fastapi_oauth2_mongodb.models import User, Trial
 from fastapi_oauth2_mongodb.users import create_trial_user
 
 app = FastAPI()
@@ -27,20 +26,16 @@ EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS')  # replace with your email addre
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')  # replace with your email password
 
 
-class Email(BaseModel):
-    email: str
-
-
-@router.post("/api/trial/v1/trial_email")
-async def trial_email(e: Email):
-    await create_trial_user(User(email=e.email))
-    create_api_key_result = await create_api_key(e.email)
+@router.post("/api/trial/v1/email")
+async def api_trial_v1_email(t: Trial):
+    await create_trial_user(User(email=t.email))
+    create_api_key_result = await create_api_key(t.email)
     if SMTP_SERVER is None or SMTP_PORT == 0 or EMAIL_ADDRESS is None or EMAIL_PASSWORD is None:
         raise HTTPException(status_code=500, detail="SMTP server, port, email address, or password is not set.")
     try:
         msg = MIMEMultipart()
         msg['From'] = EMAIL_ADDRESS
-        msg['To'] = e.email
+        msg['To'] = t.email
         msg['Subject'] = "Welcome to our website!"
 
         # add your email content here
@@ -65,11 +60,8 @@ async def trial_email(e: Email):
 
 
 async def send_email(email_address: str):
-    """
-    Send a welcome email to the specified email address.
-    """
-    email = Email(email=email_address)
-    result = await trial_email(email)
+    email = Trial(email=email_address)
+    result = await api_trial_v1_email(email)
     print(result["message"])
 
 
