@@ -1,7 +1,8 @@
-todo 要架設在雲端 gcp 一方面提供服務，一方面進行 vs code 雲端開發作業，可避免環境問題
 todo 已經可以拿到 api key 之後，要可以根據 api key 進行功能呼叫，這些功能呼叫要可以授權
-todo log 要寫入 mongodb
-todo ActionResult 加入 created_at updated_at
+
+todo 要架設在雲端 gcp 一方面提供服務，一方面進行 vs code 雲端開發作業，可避免環境問題
+1* todo log 要寫入 mongodb
+1* todo ActionResult 加入 created_at updated_at
 
 2023-03-15 done bowen, models.py APIKey 要建立 db index, User 要建立 index, email 欄位建立索引之後搜尋查找才會閃電快, 而且索引只能建立一次不要建立多次
 
