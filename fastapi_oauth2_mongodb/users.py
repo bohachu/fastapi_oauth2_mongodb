@@ -4,34 +4,32 @@ from datetime import timedelta
 
 from pymongo import errors
 
-from fastapi_oauth2_mongodb.auth_token import ACCESS_TOKEN_EXPIRE_MINUTES, \
-    create_access_token
-from fastapi_oauth2_mongodb.database import users_collection
+from fastapi_oauth2_mongodb.auth_token import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from fastapi_oauth2_mongodb.hash import pwd_context
 from fastapi_oauth2_mongodb.models import User, RegisterResult, LoginResult, CreateTrialUserResult
 from fastapi_oauth2_mongodb.time import now
 
 
 async def register(user: User) -> RegisterResult:
-    existing_user = await users_collection.find_one({"email": user.email})
+    existing_user = await user.collection().find_one({"email": user.email})
     if existing_user:
         return RegisterResult(email=user.email, time=now(),
-                              success=False, message="Registration failed, user existed.")
+                              success=False, message="Registration failed, user already exists.")
     try:
         user.hashed_password = pwd_context.hash(user.password)
         user.password = ''
-        await users_collection.insert_one(user.dict())
+        await user.save()
         return RegisterResult(email=user.email, time=now(),
-                              success=True, message="Registration success.")
+                              success=True, message="Registration successful.")
     except errors.PyMongoError as e:
         return RegisterResult(email=user.email, time=now(),
                               success=False, message=f"Registration failed, exception: {e}")
 
 
-async def login(email: str, password: str) -> LoginResult:
-    existing_user = await users_collection.find_one({"email": email})
-    if not existing_user or not pwd_context.verify(password, existing_user["hashed_password"]):
-        return LoginResult(email=email, time=now(), success=False, message="Login failed.")
+async def login(user: User) -> LoginResult:
+    existing_user = await user.collection().find_one({"email": user.email})
+    if not existing_user or not pwd_context.verify(user.password, existing_user["hashed_password"]):
+        return LoginResult(email=user.email, time=now(), success=False, message="Login failed.")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": existing_user["email"]}, expires_delta=access_token_expires)
     return LoginResult(email=existing_user["email"], time=now(), success=True, message="Login success.",
@@ -39,12 +37,12 @@ async def login(email: str, password: str) -> LoginResult:
 
 
 async def create_trial_user(user: User) -> CreateTrialUserResult:
-    existing_user = await users_collection.find_one({"email": user.email})
+    existing_user = await user.collection().find_one({"email": user.email})
     if existing_user:
         return CreateTrialUserResult(email=user.email, time=now(),
                                      success=False, message="Create trial user failed, user existed.")
     try:
-        await users_collection.insert_one(user.dict())
+        await user.save()
         return CreateTrialUserResult(email=user.email, time=now(),
                                      success=True, message="Create trial user success.")
     except errors.PyMongoError as e:
@@ -74,11 +72,10 @@ async def main():
         return
 
     if args.command == "register":
-        user = User(email=args.email, password=args.password)
-        result = await register(user)
+        result = await register(User(email=args.email, password=args.password))
         print(result)
     elif args.command == "login":
-        result = await login(args.email, args.password)
+        result = await login(User(email=args.email, password=args.password))
         print(result)
     elif args.command == "create_trial_user":
         result = await create_trial_user(User(email=args.email))

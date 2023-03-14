@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, APIRouter, HTTPException
 
 from fastapi_oauth2_mongodb.api_keys import create_api_key
-from fastapi_oauth2_mongodb.models import User, Trial
+from fastapi_oauth2_mongodb.models import User
 from fastapi_oauth2_mongodb.users import create_trial_user
 
 app = FastAPI()
@@ -27,15 +27,15 @@ EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')  # replace with your email pas
 
 
 @router.post("/api/trial/v1/email")
-async def api_trial_v1_email(t: Trial):
-    await create_trial_user(User(email=t.email))
-    create_api_key_result = await create_api_key(t.email)
+async def api_trial_v1_email(user: User):
+    await create_trial_user(user)
+    create_api_key_result = await create_api_key(user.email)
     if SMTP_SERVER is None or SMTP_PORT == 0 or EMAIL_ADDRESS is None or EMAIL_PASSWORD is None:
         raise HTTPException(status_code=500, detail="SMTP server, port, email address, or password is not set.")
     try:
         msg = MIMEMultipart()
         msg['From'] = EMAIL_ADDRESS
-        msg['To'] = t.email
+        msg['To'] = user.email
         msg['Subject'] = "Welcome to our website!"
 
         # add your email content here
@@ -60,8 +60,7 @@ async def api_trial_v1_email(t: Trial):
 
 
 async def send_email(email_address: str):
-    email = Trial(email=email_address)
-    result = await api_trial_v1_email(email)
+    result = await api_trial_v1_email(User(email=email_address))
     print(result["message"])
 
 

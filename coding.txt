@@ -1,3 +1,21 @@
+todo models.py APIKey 要建立 index, User 要建立 index
+todo 要架設在雲端 gcp 一方面提供服務，一方面進行 vs code 雲端開發作業，可避免環境問題
+todo 已經可以拿到 api key 之後，要可以根據 api key 進行功能呼叫，這些功能呼叫要可以授權
+todo log 要寫入 mongodb
+
+== 2023-03-14 18:49 bowen ==
+done mongodb models, BaseModel 彼此要有繼承關係
+    created_at
+    2023-03-14T10:42:18.730+00:00
+    updated_at
+    2023-03-14T10:42:18.730+00:00
+
+== 2023-03-14 17:34 bowen ==
+. 多了可以 router_trial 發送試用 token 到 email 的過程
+. 學習了 models.py 裡面如果 mongodb v.s. fastapi model 重複可以
+
+==
+
 # 2023-03-10 18:04 bowen caro 已經完成 router_trial.py
   支援 smtp 發信功能
 
