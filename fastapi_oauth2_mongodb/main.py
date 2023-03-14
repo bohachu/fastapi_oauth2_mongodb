@@ -7,8 +7,16 @@ from starlette.responses import RedirectResponse
 
 from fastapi_oauth2_mongodb import router_trial, router_openai
 from fastapi_oauth2_mongodb import router_users
+from init_index import create_db_indexes
 
 app = FastAPI()
+
+
+@app.on_event("startup")
+async def startup_event():
+    await create_db_indexes()
+
+
 origins = [
     "http://localhost",
     "http://localhost:3000",

@@ -21,13 +21,13 @@ class MongoDBModel(BaseModel):
 
 
 class User(MongoDBModel):
-    email: Union[str, None] = None
+    email: Union[str, None] = None  # index
     password: Union[str, None] = None
     hashed_password: Union[str, None] = None
 
 
 class APIKey(MongoDBModel):
-    email: str
+    email: str  # index
     api_key: str
 
 
