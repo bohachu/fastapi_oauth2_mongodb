@@ -1,57 +1,89 @@
+import argparse
+import asyncio
 from datetime import timedelta
 
-from jose import jwt, JWTError
 from pymongo import errors
-from starlette import status
-from starlette.exceptions import HTTPException
 
 from fastapi_oauth2_mongodb.auth_token import ACCESS_TOKEN_EXPIRE_MINUTES, \
-    create_access_token, SECRET_KEY, ALGORITHM
+    create_access_token
 from fastapi_oauth2_mongodb.database import users_collection
 from fastapi_oauth2_mongodb.hash import pwd_context
-from fastapi_oauth2_mongodb.models import RegisterData, RegisterResult, LoginResult, CurrentUserResult
+from fastapi_oauth2_mongodb.models import User, RegisterResult, LoginResult, CreateTrialUserResult
 from fastapi_oauth2_mongodb.time import now
 
 
-async def current_user(token: str) -> CurrentUserResult:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    user = await users_collection.find_one({"username": username})
-    if user is None:
-        raise credentials_exception
-    return CurrentUserResult(username=user["username"], email=user["email"])
-
-
-async def register(data: RegisterData) -> RegisterResult:
-    existing_user = await users_collection.find_one({"username": data.username})
+async def register(user: User) -> RegisterResult:
+    existing_user = await users_collection.find_one({"email": user.email})
     if existing_user:
-        return RegisterResult(action="register", username=data.username, time=now(),
+        return RegisterResult(email=user.email, time=now(),
                               success=False, message="Registration failed, user existed.")
     try:
-        await users_collection.insert_one(
-            {"username": data.username, "hashed_password": pwd_context.hash(data.password), "email": data.email})
-        return RegisterResult(action="register", username=data.username, time=now(),
+        user.hashed_password = pwd_context.hash(user.password)
+        user.password = ''
+        await users_collection.insert_one(user.dict())
+        return RegisterResult(email=user.email, time=now(),
                               success=True, message="Registration success.")
     except errors.PyMongoError as e:
-        return RegisterResult(action="register", username=data.username, time=now(),
+        return RegisterResult(email=user.email, time=now(),
                               success=False, message=f"Registration failed, exception: {e}")
 
 
-async def login(username: str, password: str) -> LoginResult:
-    existing_user = await users_collection.find_one({"username": username})
+async def login(email: str, password: str) -> LoginResult:
+    existing_user = await users_collection.find_one({"email": email})
     if not existing_user or not pwd_context.verify(password, existing_user["hashed_password"]):
-        return LoginResult(username=username, time=now(), success=False, message="Login failed.")
+        return LoginResult(email=email, time=now(), success=False, message="Login failed.")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": existing_user["username"]}, expires_delta=access_token_expires)
-    return LoginResult(username=existing_user["username"], time=now(), success=True, message="Login success.",
+    access_token = create_access_token(data={"sub": existing_user["email"]}, expires_delta=access_token_expires)
+    return LoginResult(email=existing_user["email"], time=now(), success=True, message="Login success.",
                        token=access_token)
+
+
+async def create_trial_user(user: User) -> CreateTrialUserResult:
+    existing_user = await users_collection.find_one({"email": user.email})
+    if existing_user:
+        return CreateTrialUserResult(email=user.email, time=now(),
+                                     success=False, message="Create trial user failed, user existed.")
+    try:
+        await users_collection.insert_one(user.dict())
+        return CreateTrialUserResult(email=user.email, time=now(),
+                                     success=True, message="Create trial user success.")
+    except errors.PyMongoError as e:
+        return CreateTrialUserResult(email=user.email, time=now(),
+                                     success=False, message=f"Create trial user failed, exception: {e}")
+
+
+async def main():
+    parser = argparse.ArgumentParser(description="FastAPI OAuth2 MongoDB CLI")
+    subparsers = parser.add_subparsers(dest="command")
+
+    register_parser = subparsers.add_parser("register", help="Register a new user")
+    register_parser.add_argument("--email", required=True, help="Email")
+    register_parser.add_argument("--password", required=True, help="Password")
+
+    login_parser = subparsers.add_parser("login", help="Login with an existing user")
+    login_parser.add_argument("--email", required=True, help="Email")
+    login_parser.add_argument("--password", required=True, help="Password")
+
+    create_trial_user_parser = subparsers.add_parser("create_trial_user", help="Create trial user")
+    create_trial_user_parser.add_argument("--email", required=True, help="Email")
+
+    args, unknown = parser.parse_known_args()
+
+    if not args.command:
+        parser.print_help()
+        return
+
+    if args.command == "register":
+        user = User(email=args.email, password=args.password)
+        result = await register(user)
+        print(result)
+    elif args.command == "login":
+        result = await login(args.email, args.password)
+        print(result)
+    elif args.command == "create_trial_user":
+        result = await create_trial_user(User(email=args.email))
+        print(result)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

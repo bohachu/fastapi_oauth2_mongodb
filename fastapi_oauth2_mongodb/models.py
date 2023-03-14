@@ -2,38 +2,27 @@ from typing import Union
 
 from pydantic import BaseModel
 
-from fastapi_oauth2_mongodb.time import now
-
 
 class User(BaseModel):
-    username: str
     email: Union[str, None] = None
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
+    password: Union[str, None] = None
+    hashed_password: Union[str, None] = None
 
 
-class UserInDB(User):
-    hashed_password: str
+class APIKey(BaseModel):
+    email: str
+    api_key: str
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
-
-
-class TokenData(BaseModel):
-    username: Union[str, None] = None
-
-
-class RegisterData(BaseModel):
-    username: str
-    password: str
-    email: str
+    email: Union[str, None] = None
 
 
 class ActionResult(BaseModel):
     action: str
-    username: str
+    email: str
     time: str
     success: bool
     message: str = ""
@@ -43,10 +32,15 @@ class RegisterResult(ActionResult):
     action: str = "RegisterResult"
 
 
+class CreateTrialUserResult(ActionResult):
+    action: str = "CreateTrialUserResult"
+
+
 class LoginResult(ActionResult):
     action: str = "LoginResult"
     token: str = None
 
 
-class CurrentUserResult(ActionResult):
-    action: str = "CurrentUserResult"
+class CreateApiKeyResult(ActionResult):
+    action: str = "CreateApiKeyResult"
+    api_key: str = None
