@@ -1,4 +1,49 @@
 2* todo 已經可以拿到 api key 之後，要可以根據 api key 進行功能呼叫，這些功能呼叫要可以授權 for roy
+
+curl -X POST -H "Content-Type: application/json" -d '
+{
+  "api_key": "XXX",
+  "github_username": "my_name",
+  "repo": "add_two_number",
+  "github_token": "YYY",
+  "work_dir": "/",
+  "run": "python add_two_number.py",
+  "tasks_args": [
+	[1, 2],
+	[3, 4]
+  ]
+}' https://falra.net/api/compute/v1/run_github
+
+查詢執行狀態的輸出（這是另外一個指令endpoint
+https://falra.net/api/compute/v1/status)
+{
+  "action": "run_github",
+  "username": "my_name",
+  "time": "2022-03-01T10:00:00Z",
+  "success": true,
+  "message": "Tasks found success.",
+  "tasks_status":[
+{
+    "task_id": "6f950c6d-f465-47b1-8f46-3c28e7f719d9",
+    "status": "completed",
+    "start_time": "2022-03-01T10:00:00Z",
+    "end_time": "2022-03-01T10:10:00Z",
+    "execution_time": 600,
+    "stdout": "3",
+  },
+{
+    "task_id": "7a2d0879-7bfc-4d4b-9fc4-6f8a684cde5f",
+    "status": "completed",
+    "start_time": "2022-03-01T10:00:00Z",
+    "end_time": "2022-03-01T10:10:00Z",
+    "execution_time": 600,
+    "stdout": "7",
+  }]
+}
+
+釐清，roy的東西不能直接用，是因為還要驗證 api_key 的流程要寫程式碼
+
+
 1* todo log 要寫入 mongodb
 1* todo ActionResult 加入 created_at updated_at
 
