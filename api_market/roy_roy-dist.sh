@@ -1,0 +1,1 @@
+sudo docker run  --rm -p 8000:80 -v $(pwd)/roy/roy-dist:/app tiangolo/uvicorn-gunicorn-fastapi:latest
