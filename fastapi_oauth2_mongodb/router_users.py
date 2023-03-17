@@ -15,5 +15,4 @@ async def api_users_v1_register(user: User):
 
 @router.post("/api/users/v1/login", status_code=status.HTTP_200_OK, response_model=dict)
 async def api_users_v1_login(form_data: OAuth2PasswordRequestForm = Depends()):
-    # form_data.username value is email
-    return await login(form_data.username, form_data.password)
+    return await login(User(email=form_data.username, password=form_data.password))

@@ -1,8 +1,47 @@
 2* todo 已經可以拿到 api key 之後，要可以根據 api key 進行功能呼叫，這些功能呼叫要可以授權 for roy
+1* todo log 要寫入 mongodb
+1* todo ActionResult 加入 created_at updated_at
+
+pending
+1* todo 雲端 vs code 開發環境如果想要架設的話，啟動時發現問題是在 in docker vs-code-server, 不能啟動 mongodb docker, 那，所以未來如果真的要做，要把 docker-compose 的 mongodb 獨立啟動才可以，不可以包含 ./go.py 裡面
+1* todo 要架設在雲端 gcp 一方面提供服務，一方面進行 vs code 雲端開發作業，可避免環境問題
+
+== 2023-03-17 fix bugs ==
+@router.post("/api/users/v1/login", status_code=status.HTTP_200_OK, response_model=dict)
+async def api_users_v1_login(form_data: OAuth2PasswordRequestForm = Depends()):
+    return await login(User(email=form_data.username, password=form_data.password))
+
+roy 的測試只要驗證 api_gateway_api_key
+caro-bowen 是提供 api-gateway 端點給 roy-dist 來做計費、流速控制
+
+https://roy-dist.g.cameo.tw/api/compute/v1/run_github
+
+caro-bowen-api-gateway 提供 roy-dist 服務 api key to 發給 jc 讓 jc.py 來跑六年分析
+caro-bowen-api-gateway 提供 roy-dist 服務 api key to 發給 jan 讓 jan.py 來跑解壓縮一堆檔案切小檔案
+
+roy 是 roy-dist 服務提供者
+https://roy-dist.cameo.tw/api/compute/v1/run_github
+
+我們現在的目標：
+
+roy-dist.py 架設在gcp一台 140.113.23.3 的主機上 port 10001, 是 fastapi 架設的
+caro-bowen.py 架設在gcp 140.113.23.3 同一台 port 20002, 也是 fastapi 架設的
+
+caro-bowen 的 fastapi server 的 domain
+g.cameo.tw
+roy-dist.g.cameo.tw
+
+roy-dist 的 domain 長這樣
+roy-dist.cameo.tw
+
+我們要可以轉發過去怎麼做? 才能用 docker 進行這樣的 domain 轉換？
+
+
+
+
 
 curl -X POST -H "Content-Type: application/json" -d '
 {
-  "api_key": "XXX",
   "github_username": "my_name",
   "repo": "add_two_number",
   "github_token": "YYY",
@@ -44,12 +83,6 @@ https://falra.net/api/compute/v1/status)
 釐清，roy的東西不能直接用，是因為還要驗證 api_key 的流程要寫程式碼
 
 
-1* todo log 要寫入 mongodb
-1* todo ActionResult 加入 created_at updated_at
-
-pending
-1* todo 雲端 vs code 開發環境如果想要架設的話，啟動時發現問題是在 in docker vs-code-server, 不能啟動 mongodb docker, 那，所以未來如果真的要做，要把 docker-compose 的 mongodb 獨立啟動才可以，不可以包含 ./go.py 裡面
-1* todo 要架設在雲端 gcp 一方面提供服務，一方面進行 vs code 雲端開發作業，可避免環境問題
 
 品牌名稱可能因為稅務問題需要換名字
 

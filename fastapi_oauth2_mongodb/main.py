@@ -5,7 +5,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
-from fastapi_oauth2_mongodb import router_trial, router_openai
+from fastapi_oauth2_mongodb import router_trial
+from fastapi_openai import router_openai
 from fastapi_oauth2_mongodb import router_users
 from init_index import create_db_indexes
 
