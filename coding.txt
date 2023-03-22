@@ -1,3 +1,6 @@
++ caro 成功
++ caro 想不到這麼快就可以 work
+
 2* todo 已經可以拿到 api key 之後，要可以根據 api key 進行功能呼叫，這些功能呼叫要可以授權 for roy
 1* todo log 要寫入 mongodb
 1* todo ActionResult 加入 created_at updated_at
