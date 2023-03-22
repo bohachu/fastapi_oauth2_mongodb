@@ -33,7 +33,7 @@ async def run_code(code_request: CodeRequest, x_falra_key: str):
     subprocess.run(['pip', 'install', '-r', 'requirements.txt'], check=True)
 
     # 用 shell 命令的方式執行 main.py，並取得 stdout
-    result = subprocess.run(['python', 'main.py'], capture_output=True, text=True)
+    result = subprocess.run(['python3', 'main.py'], capture_output=True, text=True)
 
     # 將執行結果回傳給呼叫方
     return result.stdout
